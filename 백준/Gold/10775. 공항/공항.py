@@ -1,48 +1,30 @@
 import sys
-input = sys.stdin.readline
+sys.setrecursionlimit(10**9)
 
-num_gates = int(input())
-num_airplanes = int(input())
-airplanes = [int(input()) for _ in range(num_airplanes)]
+g = int(sys.stdin.readline().rstrip())
+p = int(sys.stdin.readline().rstrip())
 
-alters = list(range(num_gates+1))
+count = 0
 
-def find_root(airplane):
-    stack = [airplane]
+plane_list = []
+for i in range(p):
+    plane_list.append(int(sys.stdin.readline().rstrip()))
 
-    while True:
-        parking_gate = alters[airplane]
+parent = [i for i in range(g+1)]
 
-        if parking_gate == airplane:
-            break
-        else:
-            stack.append(parking_gate)
-            airplane = alters[parking_gate]
+def find(plane):
+    if parent[plane] == plane:
+        return plane
+    
+    y = find(parent[plane])
+    parent[plane] = y
+    return y
 
-    while stack:
-        temp = stack.pop()
-        alters[temp] = parking_gate
-
-    return parking_gate
-
-def union(a,b):
-    # b is bigger
-    a_root = find_root(a)
-    b_root = find_root(b)
-
-    alters[a_root] = b_root
-
-cnt = 0
-
-for i in range(num_airplanes):
-    airplane = airplanes[i]
-    root = find_root(airplane)
-
-    if root == 0:
+for plane in plane_list:
+    temp = find(plane)
+    if temp == 0:
         break
+    parent[temp] = parent[temp-1]
+    count += 1
 
-    union(root, root-1)
-    #print(alters)
-    cnt += 1
-
-print(cnt)
+print(count)
