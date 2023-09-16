@@ -6,7 +6,6 @@ n, m = map(int, input().split())
 
 parent = [i for i in range(n)]
 compares = []
-group = set()
 graph = [[] for _ in range(n)]
 inDgree = {}
 
@@ -31,10 +30,6 @@ for _ in range(m):
         union(int(k), int(l))
     else:
         compares.append([int(k), int(l)])
-
-
-for each in parent:
-    group.add(find(each))
 
 for k, l in compares:
     x = find(k)
