@@ -1,64 +1,71 @@
-from collections import deque
 import sys
+from collections import deque
 
-input = sys.stdin.readline
-dx = [1, -1, 0, 0]
-dy = [0, 0, 1, -1]
+n = int(sys.stdin.readline())
+
+dx = [0, 0, 1, -1]
+dy = [1, -1, 0, 0]
+
+queue = deque()
 
 def bfs(x, y):
-    c = [[-1] * (w + 2) for _ in range(h + 2)]
-    q.append([x, y])
-    c[x][y] = 0
-    while q:
-        x, y = q.popleft()
+    visit = [[-1 for _ in range(w)] for _ in range(h)]
+    visit[x][y] = 0
+
+    queue.append([x, y])
+
+    while queue:
+        x, y = queue.popleft()
+
         for i in range(4):
             nx = x + dx[i]
             ny = y + dy[i]
-            if 0 <= nx < h+2 and 0 <= ny < w+2:
-                if c[nx][ny] == -1:
-                    if a[nx][ny] == '.':
-                        c[nx][ny] = c[x][y]
-                        q.appendleft([nx, ny])
-                    elif a[nx][ny] == '#':
-                        c[nx][ny] = c[x][y] + 1
-                        q.append([nx, ny])
 
-    return c
+            if 0 <= nx < h and 0 <= ny < w:
+                if visit[nx][ny] == -1:
+                    if graph[nx][ny] == '#':
+                        visit[nx][ny] = visit[x][y] + 1
+                        queue.append([nx, ny])
+                    elif graph[nx][ny] == '.':
+                        visit[nx][ny] = visit[x][y]
+                        queue.appendleft([nx, ny])
 
-def new_map():
-    for i in a:
-        i.insert(0, '.')
-        i.append('.')
-    a.insert(0, ['.' for _ in range(w+2)])
-    a.append(['.' for _ in range(w+2)])
+    return visit
 
-tc = int(input())
-while tc:
-    h, w = map(int, input().split())
-    a = [list(input().strip()) for _ in range(h)]
-    q = deque()
+for _ in range(n):
+    h, w = map(int, sys.stdin.readline().split())
 
-    new_map()
+    graph = [['.'] + list(sys.stdin.readline().rstrip()) + ['.'] for _ in range(h)]
 
-    temp = []
-    for i in range(h + 2):
-        for j in range(w + 2):
-            if a[i][j] == '$':
-                temp.extend([i, j])
-                a[i][j] = '.'
+    graph.insert(0, ['.' for _ in range(w+2)])
+    graph.append(['.' for _ in range(w + 2)])
 
-    x1, y1, x2, y2 = temp
-    c1 = bfs(0, 0)
-    c2 = bfs(x1, y1)
-    c3 = bfs(x2, y2)
+    h = h+2
+    w = w+2
 
-    ans = sys.maxsize
-    for i in range(h+2):
-        for j in range(w+2):
-            if c1[i][j] != -1 and c2[i][j] != -1 and c3[i][j] != -1:
-                cnt = c1[i][j] + c2[i][j] + c3[i][j]
-                if a[i][j] == '#':
+    prisoner_loc = []
+
+    for x in range(h):
+        for y in range(w):
+            if graph[x][y] == '$':
+                prisoner_loc.append((x, y))
+                graph[x][y] = '.'
+
+    ax, ay = prisoner_loc[0]
+    bx, by = prisoner_loc[1]
+
+    a = bfs(0, 0)
+    b = bfs(ax, ay)
+    c = bfs(bx, by)
+   
+    answer = float('inf')
+
+    for i in range(h):
+        for j in range(w):
+            if a[i][j] != -1 and b[i][j] != -1 and c[i][j] != -1:
+                cnt = a[i][j] + b[i][j] + c[i][j]
+                if graph[i][j] == '#':
                     cnt -= 2
-                ans = min(ans, cnt)
-    print(ans)
-    tc -= 1
+                answer = min(answer, cnt)
+
+    print(answer)
